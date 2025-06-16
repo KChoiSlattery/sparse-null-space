@@ -53,14 +53,17 @@ def sparse_null(A, show=False, thresh=0.1):
 
             # From the permissible columns in H, find the one with the lowest number of
             # non-zero elements
-            # nonzero_in_cols = np.asarray(H[:, j].astype(bool).sum(axis=0))[0]
             jj = np.argmin(H[:, j].count_nonzero(axis=0))
             j = j[jj]
 
             # Create s wih the j'th element removed
             sd = s.todense()
             s_new = sparse.hstack([sparse.csr_array(sd[:j]), sd[j + 1 :]])
-            
+
             # The following matrix manipulation comes from [2]
             H = sparse.hstack([H[:, :j], H[:, j + 1 :]]) - H[:, [j]] @ s_new / sd[j]
+    
+    # Make sure that H has 1 or more columns
+    if H.shape[1] == 0:
+        raise ValueError("A must not be full rank")
     return H
