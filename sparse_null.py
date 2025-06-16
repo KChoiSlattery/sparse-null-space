@@ -9,7 +9,8 @@ def sparse_null(A, show=False, thresh=0.1):
     in [2], including many of the comments, but has some changes because of how sparse
     arrays are handled in Python.
 
-    Kieran Choi-Slattery, December 2024
+    Written by Kieran Choi-Slattery, December 2024
+    Based on MATLAB implementation by Martin Holters, 2013.
 
     [1] M. Khorramizadeh and N. Mahdavi-Amiri, "An efficient algorithm for sparse null
     space basis problem using ABS methods," Numerical Algorithms, vol. 62, no. 3, pp.
