@@ -6,7 +6,7 @@ from scipy import sparse
 def sparse_null(A, show=False, thresh=0.1):
     """Creates a sparse array whose columns span the null space of A. Python
     implementation of the algorithm from [1]. Directly copies the MATLAB implementation
-    in [2], including most of the comments, but has some changes because of how sparse
+    in [2], including many of the comments, but has some changes because of how sparse
     arrays are handled in Python.
 
     Kieran Choi-Slattery, December 2024
@@ -30,36 +30,37 @@ def sparse_null(A, show=False, thresh=0.1):
     """
 
     m, n = A.shape
-    
+
     A = sparse.csr_array(A)
-    
+
     # Get ordering of the rows of A by ascending count of non-zero elements
     r = np.diff(A.indptr)
     t = np.argsort(r)
-    
+
     # Initialize H1
-    H = sparse.eye(n).tocsc()
-    
+    H = sparse.eye_array(n).tocsc()
+
     At = A.T
-    
+
     for i in tqdm(range(m), disable=not show):
         s = (At[:, [t[i]]].T @ H).reshape(H.shape[1])
-        if len(s.data) != 0:
+        if s.count_nonzero() != 0:
             # Only consider non-zero entries in s
-            jnz=np.array(s.nonzero()).ravel()
-            
+            jnz = np.array(s.nonzero()).ravel()
+
             # Filter based on the pivoting threshold
-            jnz_filter_inds = np.argwhere(np.abs(s.data) >= thresh*np.max(np.abs(s))).ravel()
-            j = jnz[jnz_filter_inds]
-            
-            # From the permissible columns in H, find the one with the lowest number of non-zero elements
-            nonzero_in_cols = np.asarray(H[:, j].astype(bool).sum(axis=0))[0]
-            jj = np.argmin(nonzero_in_cols)
+            j = jnz[np.abs(s.data) >= thresh * np.max(np.abs(s.data))]
+
+            # From the permissible columns in H, find the one with the lowest number of
+            # non-zero elements
+            # nonzero_in_cols = np.asarray(H[:, j].astype(bool).sum(axis=0))[0]
+            jj = np.argmin(H[:, j].count_nonzero(axis=0))
             j = j[jj]
-            
-            # create s wih the j'th element removed
+
+            # Create s wih the j'th element removed
             sd = s.todense()
-            s_new = sparse.hstack([sparse.csr_array(sd[:j-1]), sd[j:]]) 
+            s_new = sparse.hstack([sparse.csr_array(sd[:j]), sd[j + 1 :]])
             
-            H = sparse.hstack([H[:, :j-1], H[:, j:]])-H[:,j] @ s_new / sd[j]
+            # The following matrix manipulation comes from [2]
+            H = sparse.hstack([H[:, :j], H[:, j + 1 :]]) - H[:, [j]] @ s_new / sd[j]
     return H
