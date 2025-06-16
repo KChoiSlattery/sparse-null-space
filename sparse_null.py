@@ -42,11 +42,11 @@ def sparse_null(A, show=False, thresh=0.1):
     
     At = A.T
     
-    for i in range(m):
+    for i in tqdm(range(m), disable=not show):
         s = (At[:, [t[i]]].T @ H).reshape(H.shape[1])
         if len(s.data) != 0:
             # Only consider non-zero entries in s
-            jnz=s.nonzero()[1]
+            jnz=np.array(s.nonzero()).ravel()
             
             # Filter based on the pivoting threshold
             jnz_filter_inds = np.argwhere(np.abs(s.data) >= thresh*np.max(np.abs(s))).ravel()
@@ -57,8 +57,9 @@ def sparse_null(A, show=False, thresh=0.1):
             jj = np.argmin(nonzero_in_cols)
             j = j[jj]
             
-            
-            
+            # create s wih the j'th element removed
             sd = s.todense()
-            H = sparse.hstack([H[:, :j-1], H[:, j:]])-H[:,j] @ sparse.hstack([sd[:j-1], sd[j:]])/sd[j]
+            s_new = sparse.hstack([sparse.csr_array(sd[:j-1]), sd[j:]]) 
+            
+            H = sparse.hstack([H[:, :j-1], H[:, j:]])-H[:,j] @ s_new / sd[j]
     return H
