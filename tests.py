@@ -8,7 +8,7 @@ from sparse_null import sparse_null
 
 class TestSparseNull(unittest.TestCase):
 
-    def test_(self):
+    def test_zero_product(self):
         for i in range(100):
             with self.subTest(i=i):
                 A = sparse.random_array((150, 150), density=0.01, rng=i)
