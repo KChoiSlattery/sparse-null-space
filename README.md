@@ -21,24 +21,28 @@ print((A @ H).max())
 
 ### Runtime
 
-| $A$ shape     | $A$ density | `sparse_null` | `scipy.linalg.null_space` |
-| ------------- | ----------- | ------------- | ------------------------- |
-| (3000, 3000)  | 0.1%        | 2.1 s         | 4.2 s                     |
-| (3000, 3000)  | 0.01%       | 724 ms        | 3.3 s                     |
-| (3000, 15000) | 0.1%        | 6.2 s         | 28.8 s                    |
-| (100, 15000)  | 0.1%        | 78.3 ms       | 18.5 s                    |
+Tested on Intel Core i9-14900K@3.20 GHz. Since scipy's built-in sparse SVD function is
+designed to extract the top $k$ singular values and vectors, it is not good for
+calculating a null space. `scipy.linalg.null_space` is based on an SVD.
+
+| $A$ shape     | $A$ density | `sparse_null` runtime | `scipy.linalg.null_space` runtime |
+| ------------- | ----------- | --------------------- | --------------------------------- |
+| (3000, 3000)  | 0.1%        | 2.1 s                 | 4.2 s                             |
+| (3000, 3000)  | 0.01%       | 724 ms                | 3.3 s                             |
+| (3000, 15000) | 0.1%        | 6.2 s                 | 28.8 s                            |
+| (100, 15000)  | 0.1%        | 78.3 ms               | 18.5 s                            |
 
 ### Density of Null Space
 
 The density is defined as the number of nonzero elements divided by the total number of
-elements in the array. 
+elements in the array.
 
-| $A$ shape     | $A$ density | `sparse_null` | `scipy.linalg.null_space` |
-|---------------|-------------|---------------|---------------------------|
-| (3000, 3000)  | 0.1%        | 0.053%        | 99.8%                     |
-| (3000, 3000)  | 0.01%       | 0.034%        | 55.3%                     |
-| (3000, 15000) | 0.1%        | 0.28%         | 91.5%                     |
-| (100, 15000)  | 0.1%        | 0.0073%       | 0.26%                     |
+| $A$ shape     | $A$ density | `sparse_null` density | `scipy.linalg.null_space` density |
+| ------------- | ----------- | --------------------- | --------------------------------- |
+| (3000, 3000)  | 0.1%        | 0.053%                | 99.8%                             |
+| (3000, 3000)  | 0.01%       | 0.034%                | 55.3%                             |
+| (3000, 15000) | 0.1%        | 0.28%                 | 91.5%                             |
+| (100, 15000)  | 0.1%        | 0.0073%               | 0.26%                             |
 
 [^1]: M. Khorramizadeh and N. Mahdavi-Amiri, "An efficient algorithm for sparse null
 space basis problem using ABS methods," Numerical Algorithms, vol. 62, no. 3, pp.
