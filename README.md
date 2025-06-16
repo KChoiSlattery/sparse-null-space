@@ -1,4 +1,4 @@
-# python-sparse-null
+# sparse-null-space
 
 Python implementation of sparse null-space algorithm.
 
